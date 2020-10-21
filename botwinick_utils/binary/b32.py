@@ -46,6 +46,8 @@ def unpack_sequence(f, shape, data_type=float, wrapper_type=list):
         raise ValueError('unsupported struct item type')
     size, length = bytes_size(shape, struct, return_length=True)
     data = f.read(size)  # type: bytes
+    if len(data) != size:
+        raise ValueError('bytes length mismatch between expected shape and file handle; expected=%d, actual=%d' % (size, len(data)))
     fmt = ''.join([struct[0]] + [struct[1]] * length)
     return wrapper_type(unpack(fmt, data))
 
