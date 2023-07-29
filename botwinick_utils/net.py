@@ -55,57 +55,6 @@ def get_interface_ip(target_host='8.8.8.8', target_port=53):
 try:
     # TODO: Borrowed from pyrra code--finish separating out code from util/support code from pyrra and make that its own library
 
-    import netifaces
-
-
-    def system_ip_interfaces(excluded_adapters=('lo',), ipv4=True, ipv6=False, target_adapters=()):
-        """
-        Return system ip interfaces
-
-        NOTE: requires netifaces package and python 3.3+
-
-        :param excluded_adapters:
-        :param ipv4:
-        :param ipv6:
-        :param target_adapters:
-        :return:
-        """
-        result = []
-        interfaces = netifaces.interfaces()
-        for iface in interfaces:
-            if target_adapters and iface not in target_adapters:
-                continue
-            elif iface in excluded_adapters:
-                continue
-            data = netifaces.ifaddresses(iface)
-            if ipv4 and netifaces.AF_INET in data:
-                for a in data[netifaces.AF_INET]:
-                    result.append(IPv4Interface((a['addr'], a['netmask'])))
-            if ipv6 and netifaces.AF_INET6 in data:
-                for a in data[netifaces.AF_INET6]:
-                    result.append(IPv6Interface((a['addr'], a['netmask'])))
-
-        return result
-
-
-    def get_default_gateway(ipv4=True):
-        """
-        Return system ip interfaces
-
-        NOTE: requires netifaces package and python 3.3+
-
-        :param ipv4:
-        :return: gw_adapter_name, gw_ip
-        """
-        gw = netifaces.gateways()
-        gw_ip, gw_adapter = gw['default'][netifaces.AF_INET if ipv4 else netifaces.AF_INET6]
-        return gw_adapter, gw_ip
-except ImportError:
-    pass
-
-try:
-    # TODO: Borrowed from pyrra code--finish separating out code from util/support code from pyrra and make that its own library
-
     # noinspection PyCompatibility
     from ipaddress import (ip_network, IPv4Network, IPv6Network, IPv4Interface, IPv6Interface, ip_interface,
                            collapse_addresses)
@@ -142,6 +91,7 @@ try:
             self._nets = list(collapse_addresses(nets + [new_net]))
             return self
 
+        # noinspection PyCompatibility
         def remove(self, exclude_net, allow_hosts=True):
             nets = self._nets
             if isinstance(exclude_net, (IPv4Network, IPv6Network)):
@@ -199,5 +149,59 @@ try:
 
     PRIVATE_LANS = SubnetGroup('10.0.0.0/8', '172.16.0.0/12')
     ALL_PRIVATE_LANS = SubnetGroup('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16')
+except ImportError:
+    pass
+
+try:
+    # TODO: Borrowed from pyrra code--finish separating out code from util/support code from pyrra and make that its own library
+
+    import netifaces
+    # noinspection PyCompatibility
+    from ipaddress import (ip_network, IPv4Network, IPv6Network, IPv4Interface, IPv6Interface, ip_interface,
+                           collapse_addresses)
+
+
+    def system_ip_interfaces(excluded_adapters=('lo',), ipv4=True, ipv6=False, target_adapters=()):
+        """
+        Return system ip interfaces
+
+        NOTE: requires netifaces package and python 3.3+
+
+        :param excluded_adapters:
+        :param ipv4:
+        :param ipv6:
+        :param target_adapters:
+        :return:
+        """
+        result = []
+        interfaces = netifaces.interfaces()
+        for iface in interfaces:
+            if target_adapters and iface not in target_adapters:
+                continue
+            elif iface in excluded_adapters:
+                continue
+            data = netifaces.ifaddresses(iface)
+            if ipv4 and netifaces.AF_INET in data:
+                for a in data[netifaces.AF_INET]:
+                    result.append(IPv4Interface((a['addr'], a['netmask'])))
+            if ipv6 and netifaces.AF_INET6 in data:
+                for a in data[netifaces.AF_INET6]:
+                    result.append(IPv6Interface((a['addr'], a['netmask'])))
+
+        return result
+
+
+    def get_default_gateway(ipv4=True):
+        """
+        Return system ip interfaces
+
+        NOTE: requires netifaces package and python 3.3+
+
+        :param ipv4:
+        :return: gw_adapter_name, gw_ip
+        """
+        gw = netifaces.gateways()
+        gw_ip, gw_adapter = gw['default'][netifaces.AF_INET if ipv4 else netifaces.AF_INET6]
+        return gw_adapter, gw_ip
 except ImportError:
     pass
