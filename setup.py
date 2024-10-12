@@ -15,7 +15,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/dbotwinick/botwinick_utils",
     packages=setuptools.find_packages(),
-    install_requires=['six'],
+    install_requires=[],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

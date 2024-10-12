@@ -2,7 +2,7 @@ import logging
 from threading import Thread
 from time import sleep, time
 
-from six.moves.queue import PriorityQueue
+from queue import PriorityQueue
 
 
 class ThreadedEventLoop(object):

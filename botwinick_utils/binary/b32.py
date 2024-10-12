@@ -5,8 +5,7 @@ import operator
 from functools import reduce
 from struct import calcsize, error, pack, unpack
 
-from six import string_types
-
+_string_types = (str,)  # for removing six dependency
 _BINARY_FLOAT_PACK = '!f'
 _BINARY_INTEGER_PACK = '!I'
 _BINARY_STRING_PACK = '!s'
@@ -18,7 +17,7 @@ def bytes_size(shape, struct=_BINARY_FLOAT_PACK, return_length=True):
     elif not isinstance(shape, (tuple, list)):
         shape = [shape]
 
-    if not isinstance(struct, string_types):
+    if not isinstance(struct, _string_types):
         if struct == float:
             struct = _BINARY_FLOAT_PACK
         elif struct == int:
@@ -40,7 +39,7 @@ def unpack_sequence(f, shape, data_type=float, wrapper_type=list):
         struct = _BINARY_FLOAT_PACK
     elif data_type == int:
         struct = _BINARY_INTEGER_PACK
-    elif data_type in string_types:
+    elif data_type in _string_types:
         struct = _BINARY_STRING_PACK
     else:
         raise ValueError('unsupported struct item type')
@@ -57,7 +56,7 @@ def pack_sequence(f, sequence):
         struct = _BINARY_FLOAT_PACK
     elif isinstance(sequence[0], int):
         struct = _BINARY_INTEGER_PACK
-    elif isinstance(sequence[0], string_types):
+    elif isinstance(sequence[0], _string_types):
         struct = _BINARY_STRING_PACK
     else:
         raise ValueError('unsupported struct item type')
