@@ -4,6 +4,9 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
+LOGGING_FORMAT = '%(asctime)s %(levelname)s %(threadName)s %(name)s %(funcName)s() > %(message)s'
+LOGGING_DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
+
 
 def safe_float(string):
     """ Utility function to convert python objects to floating point values without throwing an exception """
@@ -34,8 +37,8 @@ def squelch(prop_call, default=None, exceptions=(ValueError,)):
 def init_logging(log_level_name, file_name=None, days_to_keep=7, basic=False, uncompressed_days_to_keep=2):
     # Logging Configuration
     log_level = logging.getLevelName(log_level_name.upper())
-    fs = '%(asctime)s %(levelname)s %(threadName)s %(name)s %(funcName)s() > %(message)s'
-    dfs = '%Y/%m/%d %H:%M:%S'
+    fs = LOGGING_FORMAT
+    dfs = LOGGING_DATE_FORMAT
     if file_name and not basic:
         formatter = logging.Formatter(fs, dfs)
 
