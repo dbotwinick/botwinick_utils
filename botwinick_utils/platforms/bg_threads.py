@@ -27,10 +27,10 @@ def _get_exec():
 
 
 class JobExecutorEngine(object):
-    def __init__(self, max_workers: int = DEFAULT_BG_THREADS, name='engine background'):
+    def __init__(self, max_workers: int = DEFAULT_BG_THREADS, name='engine background', thread_name_prefix='bg-engine-thread'):
         _get_logger().info('initializing %s thread pool executor with %s workers', name, max_workers)
         self._name = name
-        self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix='bg-engine-thread')
+        self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix=thread_name_prefix)
         # TODO: also consider using daemon threads if we don't care about interrupting the jobs on exit...
         self._lock = threading.Lock()
         self._job_ids = set()
