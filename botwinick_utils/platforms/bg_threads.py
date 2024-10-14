@@ -5,7 +5,7 @@ from typing import Callable, Any
 from concurrent.futures import ThreadPoolExecutor
 
 _logger = None  # type: logging.Logger|None
-_job_executor = None  # type: _JobExecutorEngine|None
+_job_executor = None  # type: JobExecutorEngine|None
 
 DEFAULT_BG_THREADS = os.getenv('ENGINE_BACKGROUND_THREADS', 4)
 DEFAULT_SHUTDOWN_WAIT = False
@@ -22,13 +22,14 @@ def _get_logger():
 def _get_exec():
     global _job_executor
     if _job_executor is None:
-        _job_executor = _JobExecutorEngine()
+        _job_executor = JobExecutorEngine()
     return _job_executor
 
 
-class _JobExecutorEngine(object):
-    def __init__(self, max_workers: int = DEFAULT_BG_THREADS):
-        _get_logger().info('initializing engine background thread pool executor with %s workers', max_workers)
+class JobExecutorEngine(object):
+    def __init__(self, max_workers: int = DEFAULT_BG_THREADS, name='engine background'):
+        _get_logger().info('initializing %s thread pool executor with %s workers', name, max_workers)
+        self._name = name
         self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix='bg-engine-thread')
         # TODO: also consider using daemon threads if we don't care about interrupting the jobs on exit...
         self._lock = threading.Lock()
@@ -37,12 +38,48 @@ class _JobExecutorEngine(object):
     # TODO: add progress reporting capabilities from rostra to jobs to enable holistic progress reporting
 
     def submit_unique_job_pre(self, job_id, fn, *args, **kwargs):
+        """
+        Run a given task (fn, *args, **kwargs) via this thread pool executor. This is
+        the "pre" style function (meaning that the "reservation" on the unique job_id is
+        cleared immediately as the job is starting [rather than being cleared upon completion]).
+
+        If unique job_id / collision / queue explosion prevention is not required, use `bg_run`.
+
+        :param job_id: unique job_id to assigned to job to prevent collisions (otherwise use `bg_run`)
+        :param fn: the function to execute
+        :param args: arguments for the function
+        :param kwargs: keyword arguments for the function
+        :return: boolean True if queued
+        """
         return self._submit_job(job_id, self._run_pre_job, fn, *args, **kwargs)
 
     def submit_unique_job_post(self, job_id, fn, *args, **kwargs):
+        """
+        Run a given task (fn, *args, **kwargs) via this thread pool executor. This is
+        the default/"post" style function (meaning that the "reservation" on the unique job_id is
+        cleared after the job finishes running).
+
+        If unique job_id / collision / queue explosion prevention is not required, use `bg_run`.
+
+        :param job_id: unique job_id to assigned to job to prevent collisions (otherwise use `bg_run`)
+        :param fn: the function to execute
+        :param args: arguments for the function
+        :param kwargs: keyword arguments for the function
+        :return: boolean True if queued
+        """
         return self._submit_job(job_id, self._run_post_job, fn, *args, **kwargs)
 
+    submit_unique_job = submit_unique_job_post
+
     def submit_job(self, fn, *args, **kwargs):
+        """
+        Run a given task (fn, *args, **kwargs) via this thread pool executor.
+
+        :param fn: the function to execute
+        :param args: arguments for the function
+        :param kwargs: keyword arguments for the function
+        :return: boolean True if queued
+        """
         return bool(self._executor.submit(fn, *args, **kwargs))
 
     @property
@@ -77,9 +114,14 @@ class _JobExecutorEngine(object):
                 self._job_ids.remove(job_id)  # Clean up job_id when done for (post) style job
         return
 
-    def shutdown(self, wait: bool = True, cancel_pending=True):
-        """Shuts down the executor."""
-        _get_logger().info('Shutting down engine background thread pool executor')
+    def shutdown(self, wait: bool = DEFAULT_SHUTDOWN_WAIT, cancel_pending: bool = DEFAULT_SHUTDOWN_CANCEL):
+        """
+        Shuts down the executor.
+
+        :param wait: whether to join/wait for shutdown completion
+        :param cancel_pending: whether to cancel pending activities
+        """
+        _get_logger().info('Shutting down %s thread pool executor', self._name)
         return self._executor.shutdown(wait=wait, cancel_futures=cancel_pending)
 
 
