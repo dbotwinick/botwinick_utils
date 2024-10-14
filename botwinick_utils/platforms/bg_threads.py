@@ -8,6 +8,8 @@ _logger = None  # type: logging.Logger|None
 _job_executor = None  # type: _JobExecutorEngine|None
 
 DEFAULT_BG_THREADS = os.getenv('ENGINE_BACKGROUND_THREADS', 4)
+DEFAULT_SHUTDOWN_WAIT = False
+DEFAULT_SHUTDOWN_CANCEL = True
 
 
 def _get_logger():
@@ -124,7 +126,7 @@ def bg_run_unique_pre(id, fn, *args, **kwargs):
 bg_run_unique = bg_run_unique_post
 
 
-def bg_exec_shutdown(wait: bool = False, cancel_pending=True):
+def bg_exec_shutdown(wait: bool = DEFAULT_SHUTDOWN_WAIT, cancel_pending: bool = DEFAULT_SHUTDOWN_CANCEL):
     """
     Call to trigger shutdown of the background thread pool executor if it has been initialized. It is
     safe to call this function on termination even if the background thread pool executor was never
