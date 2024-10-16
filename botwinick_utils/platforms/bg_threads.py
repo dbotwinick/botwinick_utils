@@ -87,10 +87,17 @@ class JobExecutorEngine(object):
         # noinspection PyProtectedMember
         return self._executor._work_queue.qsize()
 
+    def contains_job(self, job_id: str):
+        return job_id in self._job_ids
+
+    def get_jobs(self):
+        return list(self._job_ids)
+
     def _submit_job(self, job_id: str, run_fn, fn: Callable[..., Any], *args, **kwargs):
         with self._lock:
             # check for conflicting job
             if job_id in self._job_ids:
+                # TODO: decide on proper level for this message and/or make it configurable because it could be context-dependent
                 _get_logger().info("Job with ID %s is already in the queue. Ignoring duplicate.", job_id)
                 return False
 
