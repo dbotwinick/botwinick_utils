@@ -10,6 +10,7 @@ from os import environ, listdir, makedirs as _makedirs, path as osp, unlink, uti
 try:
     from os import symlink as _symlink
 except ImportError:  # TODO: evaluate how we want to handle Windows compatibility for symlinks
+    # noinspection PyUnusedLocal
     def _symlink(*args, **kwargs):
         raise OSError()
 

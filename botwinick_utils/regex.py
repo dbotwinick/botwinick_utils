@@ -7,7 +7,7 @@ import re as _re
 
 def split(delimiters, string, max_split=0, collapse_spaces_to_tabs=True):
     """
-    Alternative to str.split that supports multiple delimiters simultaneously (uses regular expressions under the hood)
+    Alternative to `str.split` that supports multiple delimiters simultaneously (uses regular expressions under the hood)
 
     :param delimiters: iterable of delimiters (a string containing 1 or more delimiters should work since it is iterable)
     :param string: the string to split
@@ -27,7 +27,7 @@ def number_unit(string):
     :param string: number with unit string (e.g. "72 degF")
     :return: tuple of number, unit
     """
-    return _re.findall(r'\s*([-]*[0-9.]*)[\s-]*(.*)', string)[0]
+    return _re.findall(r'\s*(-*[0-9.]*)[\s-]*(.*)', string)[0]
 
 
 def parse_numeric_ranges(input_string, sep_delims=(',', ';', '\t'), range_delims=(':', '-'), r_type=int):
@@ -36,7 +36,7 @@ def parse_numeric_ranges(input_string, sep_delims=(',', ';', '\t'), range_delims
     opposite operation of `convert_list_to_numeric_ranges_str`.
 
     :param input_string: string to parse
-    :param sep_delims: delimiters separating separate inputs
+    :param sep_delims: delimiters separating inputs
     :param range_delims: delimiters separate begin:end of ranges
     :param r_type: type of value to return (basically int or float)
     :return:

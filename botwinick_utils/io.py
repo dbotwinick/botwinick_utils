@@ -53,7 +53,7 @@ def permissions_wait(io_fn, timeout=15.0, action_on_wait=None, transient_errors=
     :param io_fn: function (lambda?) that we're trying to perform that might involve a temporary/resolvable I/O error
     :param timeout: the maximum wait time for the I/O error to be resolved.
     :param action_on_wait: the function (lambda?) that we'll call periodically while waiting for either resolution or timeout
-    :param transient_errors: the errno's that we're willing to ignore / might be resolved; any other errors will be raised
+    :param transient_errors: the errno(s) that we're willing to ignore / might be resolved; any other errors will be raised
     :param period: the delay between subsequent calls to the `action_on_wait` while waiting to hit the `timeout`
     :return:
     """

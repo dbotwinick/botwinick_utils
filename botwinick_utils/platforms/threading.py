@@ -56,7 +56,7 @@ class ThreadedEventLoop(object):
         self._enabled = True
         target = self.__run_w_catch if self._catch_exceptions else self.__run_wo_catch
         self._thread = Thread(target=target, name=self._thread_name)
-        self._thread.setDaemon(daemon_mode)
+        self._thread.daemon = daemon_mode
         self._thread.start()
         return self
 
@@ -105,6 +105,7 @@ class ThreadedEventLoop(object):
     pass
 
 
+# noinspection PyTestUnpassedFixture
 class _QueueObject(object):
     """
     Quick Priority Queue Object Wrapper. Quickly added to ensure consistent

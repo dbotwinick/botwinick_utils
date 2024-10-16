@@ -62,7 +62,7 @@ class ProgressTracker(object):
         Set progress value for a given task ID.
 
         :param id: task ID
-        :param value: a progress tracker whose summary percent values should be integrated
+        :param progress_tracker: a progress tracker whose summary percent values should be integrated
         """
         cp = progress_tracker.current_progress
         if cp is None:

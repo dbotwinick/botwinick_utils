@@ -140,7 +140,7 @@ try:
 
             for n in self._nets:
                 # this ensures we only compare IP v4 with v4 and v6 with v6
-                if type(n) == type(item) and item.subnet_of(n):
+                if type(n) is type(item) and item.subnet_of(n):
                     return True
             return False
 
