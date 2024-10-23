@@ -27,13 +27,15 @@ def _get_exec():
 
 
 class JobExecutorEngine(object):
-    def __init__(self, max_workers: int = DEFAULT_BG_THREADS, name='engine background', thread_name_prefix='bg-engine-thread'):
+    def __init__(self, max_workers: int = DEFAULT_BG_THREADS, name='engine background',
+                 thread_name_prefix='bg-engine-thread', log_collisions_as_info=True):
         _get_logger().info('initializing %s thread pool executor with %s workers', name, max_workers)
         self._name = name
         self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix=thread_name_prefix)
         # TODO: also consider using daemon threads if we don't care about interrupting the jobs on exit...
         self._lock = threading.Lock()
         self._job_ids = set()
+        self._log_collisions_as_info = log_collisions_as_info
 
     # TODO: add progress reporting capabilities from rostra to jobs to enable holistic progress reporting
 
@@ -97,8 +99,8 @@ class JobExecutorEngine(object):
         with self._lock:
             # check for conflicting job
             if job_id in self._job_ids:
-                # TODO: decide on proper level for this message and/or make it configurable because it could be context-dependent
-                _get_logger().info("Job with ID %s is already in the queue. Ignoring duplicate.", job_id)
+                log_fn = _get_logger().info if self._log_collisions_as_info else _get_logger().debug
+                log_fn("Job with ID %s is already in the queue. Ignoring duplicate.", job_id)
                 return False
 
             # submit job
