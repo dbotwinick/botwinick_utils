@@ -2,6 +2,7 @@
 # license: 3-clause BSD
 
 import logging
+import re
 from logging.handlers import TimedRotatingFileHandler
 
 LOGGING_FORMAT = '%(asctime)s %(levelname)s %(threadName)s %(name)s %(funcName)s() > %(message)s'
@@ -32,6 +33,36 @@ def squelch(prop_call, default=None, exceptions=(ValueError,)):
         return prop_call()
     except exceptions:
         return default
+
+
+def clean_dns_name(name: str, length_limit: int = 253) -> str:
+    """
+    Converts a given string to a DNS-compliant name.
+
+    Parameters:
+        name (str): The input string to be converted.
+        length_limit (int): maximum length limit
+
+    Returns:
+        str: A DNS-compliant name.
+    """
+    # Convert to lowercase
+    name = name.lower()
+
+    # Replace any character that is not a letter, digit, or hyphen with a hyphen
+    name = re.sub(r'[^a-z0-9-]', '-', name)
+
+    # Remove leading or trailing hyphens (a DNS label cannot start or end with a hyphen)
+    name = name.strip('-')
+
+    # collapse repeated hyphens to single hyphens
+    name = re.sub(r'-+', '-', name)
+
+    # Truncate the  resulting name if longer than the length_limit
+    if len(name) > length_limit:
+        name = name[:length_limit]
+
+    return name
 
 
 def init_logging(log_level_name, file_name=None, days_to_keep=7, basic=False, uncompressed_days_to_keep=2):
