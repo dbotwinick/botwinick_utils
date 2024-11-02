@@ -73,7 +73,7 @@ def symlink(src, target, force=True, relative=True):
     :param src: the source file
     :param target:  the destination/target file
     :param force: whether to unlink/remove the target if it already exists. Default is True.
-    :param relative: whether to generate a relative to absolute link. Default is True.
+    :param relative: whether to generate a relative symlink. Default is True.
     :return: boolean; true if symlink created. false if not. False should only occur due to lack of OS support. Note
     that the function will also return True if the src and target files are the same file.
     """

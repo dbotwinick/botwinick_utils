@@ -5,10 +5,13 @@ import operator
 from functools import reduce
 from struct import calcsize, error, pack, unpack
 
+# import numpy as np
+
 _string_types = (str,)  # for removing six dependency
-_BINARY_FLOAT_PACK = '!f'
-_BINARY_INTEGER_PACK = '!I'
-_BINARY_STRING_PACK = '!s'
+_BINARY_FLOAT_PACK = '@f'
+_BINARY_UNSIGNED_INTEGER_PACK = '@I'
+_BINARY_SIGNED_INTEGER_PACK = '@i'
+_BINARY_STRING_PACK = '@s'
 
 
 # noinspection DuplicatedCode
@@ -19,10 +22,12 @@ def bytes_size(shape, struct=_BINARY_FLOAT_PACK, return_length=True):
         shape = [shape]
 
     if not isinstance(struct, _string_types):
-        if struct == float:
+        if struct is float:
             struct = _BINARY_FLOAT_PACK
-        elif struct == int:
-            struct = _BINARY_INTEGER_PACK
+        elif struct is int:
+            struct = _BINARY_SIGNED_INTEGER_PACK
+        # elif struct is unsigned_int:
+        #     struct = _BINARY_UNSIGNED_INTEGER_PACK
         elif struct == str:
             struct = _BINARY_STRING_PACK
         else:
@@ -37,10 +42,12 @@ def bytes_size(shape, struct=_BINARY_FLOAT_PACK, return_length=True):
 
 # noinspection DuplicatedCode
 def unpack_sequence(f, shape, data_type=float, wrapper_type=list):
-    if data_type == float:
+    if data_type is float:
         struct = _BINARY_FLOAT_PACK
-    elif data_type == int:
-        struct = _BINARY_INTEGER_PACK
+    elif data_type is int:
+        struct = _BINARY_SIGNED_INTEGER_PACK
+    # elif data_type is unsigned_int:
+    #     struct = _BINARY_UNSIGNED_INTEGER_PACK
     elif data_type in _string_types:
         struct = _BINARY_STRING_PACK
     else:
@@ -58,7 +65,9 @@ def pack_sequence(f, sequence):
     if isinstance(sequence[0], float):
         struct = _BINARY_FLOAT_PACK
     elif isinstance(sequence[0], int):
-        struct = _BINARY_INTEGER_PACK
+        struct = _BINARY_SIGNED_INTEGER_PACK
+    # elif isinstance(sequence[0], (np.uint8, np.uint16, np.uint32, np.uint64)):
+    #     struct = _BINARY_UNSIGNED_INTEGER_PACK
     elif isinstance(sequence[0], _string_types):
         struct = _BINARY_STRING_PACK
     else:
