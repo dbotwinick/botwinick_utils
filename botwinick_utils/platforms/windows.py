@@ -27,6 +27,22 @@ def open_console_stream():
     return open("CONOUT$", "w")
 
 
+def hide_console_window():
+    """
+    Hide console window allocated to this process.
+    """
+    wnd = ctypes.windll.kernel32.GetConsoleWindow()
+    ctypes.windll.user32.ShowWindow(wnd, 0)  # SW_HIDE
+
+
+def show_console_window():
+    """
+    Show console window allocated to this process.
+    """
+    wnd = ctypes.windll.kernel32.GetConsoleWindow()
+    ctypes.windll.user32.ShowWindow(wnd, 5)  # SW_SHOW
+
+
 def redirect_std_streams_to_console():
     """
     Assign new output streams to allocated console to sys.stdout and sys.stderr
