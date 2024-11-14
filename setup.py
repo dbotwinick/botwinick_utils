@@ -7,7 +7,7 @@ with open("README.md", 'r') as f:
 
 setuptools.setup(
     name="botwinick_utils",
-    version="0.0.19",
+    version="0.0.20",
     author="Drew Botwinick",
     author_email="foss@drewbotwinick.com",
     description="Assorted Utilities and platform code",

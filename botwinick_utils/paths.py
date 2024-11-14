@@ -4,8 +4,13 @@
 
 import codecs
 import errno
+import subprocess
+
 from hashlib import sha1
 from os import environ, listdir, makedirs as _makedirs, path as osp, unlink, utime
+from shutil import copy
+
+from .platforms import operating_system
 
 try:
     from os import symlink as _symlink
@@ -158,3 +163,34 @@ def makedirs(path):
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise e
+
+
+def native_copy(src, dst, raise_on_error=False):
+    """
+    Copies a file from src to dst using native tools (for Windows and Linux) for better performance.
+
+    Falls back to `shutil.copy` if native tools are not available or an error occurs.
+
+    Note: requires python 3.5+
+
+    :param src: source file
+    :param dst: destination file
+    :param raise_on_error: raise an error if native copy results in non-zero exit code (alternative is to fall back to `shutil.copy`)
+    """
+    system = operating_system()
+    try:
+        if system == "windows":
+            # seems like shell is needed to make this work? might be fixable, but for now, this is the easiest solution
+            dev_null = subprocess.DEVNULL
+            subprocess.run(["xcopy", "/Y", '/Z', src, dst], check=True, shell=True, stdout=dev_null, stderr=dev_null)
+        elif system == "linux":
+            subprocess.run(["/bin/cp", "--reflink=auto", src, dst], check=True)
+        else:  # fall back option if we're not on windows or linux
+            copy(src, dst)
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        if raise_on_error:  # enable developer to select whether they want to know if it fails or not
+            raise e
+        # but by default let's just try to make sure the file gets copied...
+        copy(src, dst)
+
+    return
