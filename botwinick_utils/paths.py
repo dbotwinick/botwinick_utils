@@ -47,27 +47,28 @@ def _common_path(l1, l2, common=list()):
     return _common_path(l1[1:], l2[1:], common + [l1[0]])  # we've found a common element, recursive call minus common
 
 
-def relative_path(p1, p2):
+def relative_path(p1: str, p2: str) -> str:
     """
-    Return the string that should be prepended to files in p1 such that they would be located in p2? I find
-    this stuff confusing. Realistically, just try it both ways and find out... One way will be right...
+    Return the string that should be prepended to reference from p1 such that they would be located in p2.
+    Or in other words, using symlink use-case,
 
-    :param p1: path #1
-    :type p1: str | unicode
-    :param p2: path #2
-    :type p2: str | unicode
-    :return: 'path difference' in the form of a string formatted to prepend to a path
-    :rtype: str
+    ln -s {LINK_SOURCE} {LINK_TARGET}
+
+    p1 would represent the "LINK_TARGET" location and p2 would represent the "LINK_SOURCE" location.
+
+    :param p1: path #1 (for symlinks, this is the location of the symlink itself)
+    :param p2: path #2 (for symlinks, this would be the location of the source file)
+    :return: 'path difference' in the form of a relative path string such that if placed in p2 would "connect" to p1
     """
     common, l1, l2 = _common_path(_path_split(p1), _path_split(p2))
-    path_parts = []
+    path_parts = []  # type: list[str]
     effective_length = len(l1) - l1.count(osp.curdir) - l1.count('')
     # create a list of '../' * number of directories to traverse + left over path components
     if effective_length > 0:
         path_parts += [(osp.pardir + osp.sep) * effective_length]
     if len(l2) > 0:
         path_parts += l2
-    return osp.join(*path_parts) if path_parts else ''  # TODO: evaluate path parts empty check...
+    return osp.join(*path_parts) if path_parts else ''
 
 
 def symlink(src, target, force=True, relative=True):
